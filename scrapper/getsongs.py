@@ -12,7 +12,7 @@ load_dotenv(dotenv_path)
 spotify_token = os.environ.get("SPOTIFY_TOKEN")
 genius_access_token = os.environ.get("GENIUS_TOKEN")
 
-artists_limit = 10
+artists_limit = os.environ.get("MAX_ARTISTS_SCRAPPING") or 10
 
 assert spotify_token is not "", "Must declare SPOTIFY_TOKEN env variable"
 assert genius_access_token is not "", "Must declare GENIUS_TOKEN env variable"
