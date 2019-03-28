@@ -2,6 +2,7 @@ import json
 import os
 import requests
 import urllib
+import time
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from os.path import join, dirname
@@ -11,13 +12,12 @@ load_dotenv(dotenv_path)
 
 spotify_token = os.environ.get("SPOTIFY_TOKEN")
 genius_access_token = os.environ.get("GENIUS_TOKEN")
-
 artists_limit = os.environ.get("MAX_ARTISTS_SCRAPPING") or 10
-
 assert spotify_token is not "", "Must declare SPOTIFY_TOKEN env variable"
 assert genius_access_token is not "", "Must declare GENIUS_TOKEN env variable"
 
-i = 3
+current_milli_time = lambda: int(round(time.time() * 1000))
+current_timestamp=""
 x = set([])
 artists = []
 topSongs = {}
@@ -83,12 +83,15 @@ def scrap_song_url(url):
 
 # Write songs in file
 def writeJson(jsonText):
-    with open('lyrics.json', 'w') as f:  # writing JSON object
+    global current_timestamp
+    with open('../dataset/lyrics-'+str(current_timestamp)+'.json', 'w') as f:  # writing JSON object
         json.dump(jsonText, f)
 
 
 def main():
+    global current_timestamp
     getTrendyRappers()
+    current_timestamp = current_milli_time()
     print('** Found rappers **\n' + '\n'.join(artists))
     print('****')
     for artist in artists:
