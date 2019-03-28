@@ -64,7 +64,6 @@ def getTrendyRappers(Playlists):
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
                'Authorization': 'Bearer ' + spotify_token}
     for playlist in playlists :
-        limit = 10
         if int(artists_limit) > 100:
             limit = 100
         else:
