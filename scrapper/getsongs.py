@@ -15,7 +15,14 @@ genius_access_token = os.environ.get("GENIUS_TOKEN")
 artists_limit = os.environ.get("MAX_ARTISTS_SCRAPPING") or 10
 assert spotify_token is not "", "Must declare SPOTIFY_TOKEN env variable"
 assert genius_access_token is not "", "Must declare GENIUS_TOKEN env variable"
+playlists = [
+    "37i9dQZF1DX1X23oiQRTB5",
+    "37i9dQZF1DWU4xkXueiKGW",
+    "37i9dQZF1DWYVURwQHUqnN",
+    "37i9dQZF1DX4sJFeoGlF41",
+    "37i9dQZF1DWSrqNVMcxGKc"
 
+]
 current_milli_time = lambda: int(round(time.time() * 1000))
 current_timestamp=""
 x = set([])
@@ -52,24 +59,33 @@ def downloadLyrics(artistName):
 
 
 # Get trending french rappers
-def getTrendyRappers():
+def getTrendyRappers(Playlists):
     global artists
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
                'Authorization': 'Bearer ' + spotify_token}
-    r = requests.get(
-        "https://api.spotify.com/v1/playlists/37i9dQZF1DWU4xkXueiKGW/tracks?market=FR&limit=" + str(artists_limit),
-        headers=headers)
-    y = json.loads(r.text)
-    if r.status_code != 200:
-        print(r.text)
-        return -1
-    songs = y['items']
-    for song in songs:
-        artist = song['track']['artists'][0]['name']
-        if "#" in artist:
-            print("Invalid " + artist)
+    for playlist in playlists :
+        limit = 10
+        if int(artists_limit) > 100:
+            limit = 100
         else:
-            x.add(artist)
+            limit = int(artists_limit)
+        r = requests.get(
+            "https://api.spotify.com/v1/playlists/"+playlist+"/tracks?market=FR&limit=" + str(limit),
+            headers=headers)
+        y = json.loads(r.text)
+        if r.status_code != 200:
+            print(r.text)
+            return -1
+        songs = y['items']
+        for song in songs:
+            artist = song['track']['artists'][0]['name']
+            if "#" in artist:
+                print("Invalid " + artist)
+            else:
+                if len(x) < int(artists_limit) :
+                    x.add(artist)
+                else:
+                    print("Limit reached")
     artists = list(x)
 
 
@@ -89,8 +105,8 @@ def writeJson(jsonText):
 
 
 def main():
-    global current_timestamp
-    getTrendyRappers()
+    global current_timestamp, playlists
+    getTrendyRappers(playlists)
     current_timestamp = current_milli_time()
     print('** Found rappers **\n' + '\n'.join(artists))
     print('****')
