@@ -38,7 +38,6 @@ def downloadLyrics(rapper):
                'Authorization': 'Bearer ' + genius_access_token}
     r = requests.get("https://api.genius.com/search?q=" + urllib.parse.quote(rapperName), headers=headers)
     y = json.loads(r.text)
-
     if r.status_code != 200:
         print(r.text)
         return -1
@@ -53,16 +52,19 @@ def downloadLyrics(rapper):
         music = song
         title = music['result']['title']
         print("- " + title)
+        # Fetch song path for given title
         r = requests.get("https://api.genius.com" + music['result']['api_path'], headers=headers)
         y = json.loads(r.text)
-        lyrics = scrap_song_url(y['response']['song']['url'])
+        # Get lyrics
+        lyrics = scrapSong(y['response']['song']['url'])
         topSongs[rapperName]['songs'].append({
             'song': title,
             'lyrics': lyrics
         })
+    # Append lyrics to file
     writeJson(topSongs)
 
-
+# Get playlist name for given playlist ID
 def getPlaylistName(playlistId):
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
                'Authorization': 'Bearer ' + spotify_token}
@@ -75,7 +77,7 @@ def getPlaylistName(playlistId):
     return json.loads(r.text)["name"]
 
 
-# Get artist popularity
+# Get artist informations
 def getArtistInfos(artistId):
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
                'Authorization': 'Bearer ' + spotify_token}
@@ -94,7 +96,9 @@ def getTrendyRappers(Playlists):
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
                'Authorization': 'Bearer ' + spotify_token}
     print("\nGet rappers from :")
+    # Get all rappers from given playlists
     for playlist in Playlists:
+        # Limiting 100 artists per request (Spotify limitations)
         if int(artists_limit) > 100:
             limit = 100
         else:
@@ -102,11 +106,11 @@ def getTrendyRappers(Playlists):
         r = requests.get(
             "https://api.spotify.com/v1/playlists/" + playlist + "/tracks?market=FR&limit=" + str(limit),
             headers=headers)
-        y = json.loads(r.text)
-        print("- " + getPlaylistName(playlist))
         if r.status_code != 200:
             print(r.text)
             return -1
+        y = json.loads(r.text)
+        print("- " + getPlaylistName(playlist))
         songs = y['items']
         for song in songs:
             artist = song['track']['artists'][0]['name']
@@ -128,7 +132,7 @@ def getTrendyRappers(Playlists):
 
 
 # Get lyrics from Genius
-def scrap_song_url(url):
+def scrapSong(url):
     page = requests.get(url)
     html = BeautifulSoup(page.text, 'html.parser')
     lyrics = html.find('div', class_='lyrics').get_text()
@@ -144,6 +148,7 @@ def writeJson(jsonText):
 
 def main():
     global current_timestamp, playlists
+    # Get rappers list
     getTrendyRappers(playlists)
     current_timestamp = current_milli_time()
     numberOfRappers = len(artistsList)
@@ -151,6 +156,7 @@ def main():
     for rapper in artistsList:
         print(rapper["name"])
     print('****')
+    # Get lyrics of all rappers
     for idx, rapper in enumerate(artistsList):
         print("\n# Progress : " + str(idx + 1) + '/' + str(numberOfRappers) + "\n")
         downloadLyrics(rapper)
