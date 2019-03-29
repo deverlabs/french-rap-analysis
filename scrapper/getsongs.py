@@ -126,7 +126,6 @@ def getTrendyRappers(Playlists):
             else:
                 if len(artistsList) < int(artists_limit):
                     if not any(d['name'] == artist for d in artistsList):
-                        print(infos)
                         if "image" and "popularity" in infos:
                             if len(infos["images"]) > 0 and len(infos["followers"]) > 0:
                                 artistsList.append({
