@@ -33,6 +33,7 @@ artistsList = []
 def downloadLyrics(rapper):
     rapperName = rapper["name"]
     rapperPopularity = rapper["popularity"]
+    rapperFollowers = rapper["followers"]
     rapperImage = rapper["image"]
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
                'Authorization': 'Bearer ' + genius_access_token}
@@ -45,6 +46,7 @@ def downloadLyrics(rapper):
     topSongs[rapperName] = {
         'popularity': rapperPopularity,
         'image': rapperImage,
+        'followers': rapperFollowers,
         'songs': []
     }
     print("* Scrapping songs of " + rapperName + " *")
@@ -126,10 +128,11 @@ def getTrendyRappers(Playlists):
                     if not any(d['name'] == artist for d in artistsList):
                         print(infos)
                         if "image" and "popularity" in infos:
-                            if len(infos["images"]) > 0:
+                            if len(infos["images"]) > 0 and len(infos["followers"]) > 0:
                                 artistsList.append({
                                     "name": artist,
                                     "popularity": infos["popularity"],
+                                    "followers": infos["followers"]["total"],
                                     "image": infos["images"][0]["url"] or None
                                 })
                 else:
