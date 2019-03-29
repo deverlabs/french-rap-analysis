@@ -9,7 +9,6 @@ from os.path import join, dirname
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
-
 spotify_token = os.environ.get("SPOTIFY_TOKEN")
 genius_access_token = os.environ.get("GENIUS_TOKEN")
 artists_limit = os.environ.get("MAX_ARTISTS_SCRAPPING") or 10
@@ -27,6 +26,7 @@ current_milli_time = lambda: int(round(time.time() * 1000))
 current_timestamp = ""
 topSongs = {}
 artistsList = []
+
 
 def request_spotify(path):
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
@@ -50,6 +50,7 @@ def request_spotify(path):
         raise Exception("non 200 return from spotify")
 
     return r
+
 
 # Get lyrics from Genius
 def downloadLyrics(rapper):
@@ -92,13 +93,12 @@ def downloadLyrics(rapper):
 # Get playlist name for given playlist ID
 def getPlaylistName(playlistId):
     r = request_spotify("/playlists/" + playlistId + "?market=FR&fields=name")
-
     return json.loads(r.text)["name"]
+
 
 # Get artist informations
 def getArtistInfos(artistId):
     r = request_spotify("/artists/" + artistId)
-
     return json.loads(r.text)
 
 
@@ -115,7 +115,6 @@ def getTrendyRappers(Playlists):
         else:
             limit = int(artists_limit)
         r = request_spotify("/playlists/" + playlist + "/tracks?market=FR&limit=" + str(limit))
-
         y = json.loads(r.text)
         print("- ", getPlaylistName(playlist))
         songs = y['items']
@@ -154,7 +153,9 @@ def scrapeSong(url):
 # Write songs in file
 def writeJson(jsonText):
     global current_timestamp
-    with open('../dataset/lyrics-' + str(current_timestamp) + '.json', 'w') as f:  # writing JSON object
+    path = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(path, '..', 'dataset/lyrics-' + str(current_timestamp) + '.json'),
+              'w') as f:  # writing JSON object
         json.dump(jsonText, f)
 
 
