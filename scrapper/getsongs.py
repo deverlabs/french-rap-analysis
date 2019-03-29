@@ -103,7 +103,7 @@ def getTrendyRappers(Playlists):
     for playlist in Playlists:
         # Limiting 100 artists per request (Spotify limitations)
         if int(artists_limit) > 100:
-            limit = 100
+            limit = 99
         else:
             limit = int(artists_limit)
         r = requests.get(
