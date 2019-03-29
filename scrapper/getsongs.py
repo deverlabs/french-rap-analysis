@@ -41,6 +41,10 @@ def request_spotify(path):
             print("Hit RateLimit - waiting ", r.headers['Retry-After'], "secs")
             time.sleep(int(r.headers['Retry-After']))
             return request_spotify(path)
+    elif r.status_code == 503:
+        print("Spotify - Service Unavailable, retry 1 sec")
+        time.sleep(1)
+        return request_spotify(path)
     elif r.status_code != 200:
         print(r.text)
         raise Exception("non 200 return from spotify")
