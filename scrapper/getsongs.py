@@ -28,6 +28,23 @@ current_timestamp = ""
 topSongs = {}
 artistsList = []
 
+def request_spotify(path):
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
+               'Authorization': 'Bearer ' + spotify_token}
+
+    r = requests.get(
+        "https://api.spotify.com/v1" + path,
+        headers=headers)
+
+    if r.status_code == 429:
+        if r.headers['Retry-After']:
+            print("Hit RateLimit - waiting ", r.headers['Retry-After'], "secs")
+            time.sleep(r.headers['Retry-After'])
+            return request_spotify(path)
+    elif r.status_code != 200:
+        raise Exception("non 200 return from spotify")
+
+    return r
 
 # Get lyrics from Genius
 def downloadLyrics(rapper):
@@ -69,35 +86,21 @@ def downloadLyrics(rapper):
 
 # Get playlist name for given playlist ID
 def getPlaylistName(playlistId):
-    headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
-               'Authorization': 'Bearer ' + spotify_token}
-    r = requests.get(
-        "https://api.spotify.com/v1/playlists/" + playlistId + "?market=FR&fields=name",
-        headers=headers)
-    if r.status_code != 200:
-        print(r.text)
-        return -1
-    return json.loads(r.text)["name"]
+    r = request_spotify("/playlists/" + playlistId + "?market=FR&fields=name")
 
+    return json.loads(r.text)["name"]
 
 # Get artist informations
 def getArtistInfos(artistId):
-    headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
-               'Authorization': 'Bearer ' + spotify_token}
-    r = requests.get(
-        "https://api.spotify.com/v1/artists/" + artistId,
-        headers=headers)
-    if r.status_code != 200:
-        print(r.text)
-        return -1
+    r = request_spotify("/artists/" + artistId)
+
     return json.loads(r.text)
 
 
 # Get trending french rappers
 def getTrendyRappers(Playlists):
     global artists
-    headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
-               'Authorization': 'Bearer ' + spotify_token}
+
     print("\nGet rappers from :")
     # Get all rappers from given playlists
     for playlist in Playlists:
@@ -106,14 +109,10 @@ def getTrendyRappers(Playlists):
             limit = 99
         else:
             limit = int(artists_limit)
-        r = requests.get(
-            "https://api.spotify.com/v1/playlists/" + playlist + "/tracks?market=FR&limit=" + str(limit),
-            headers=headers)
-        if r.status_code != 200:
-            print(r.text)
-            return -1
+        r = request_spotify("/playlists/" + playlist + "/tracks?market=FR&limit=" + str(limit))
+
         y = json.loads(r.text)
-        print("- " + getPlaylistName(playlist))
+        print("- ", getPlaylistName(playlist))
         songs = y['items']
         for song in songs:
             if song["track"] is None:
@@ -155,6 +154,12 @@ def writeJson(jsonText):
 
 
 def main():
+    i = 0
+    while True:
+        r = getArtistInfos("0TnOYISbd1XYRBk9myaseg")
+        print("hit #", i, r)
+        i += 1
+    return
     global current_timestamp, playlists
     # Get rappers list
     getTrendyRappers(playlists)
