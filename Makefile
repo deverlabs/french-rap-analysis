@@ -15,3 +15,6 @@ build: ## Build the container
 
 shell: ## Creates a bash inside the container
 	$(DOCKER_RUN_CMD) bash
+
+run-scrapper: ## Run Scrapper
+	$(DOCKER_RUN_CMD) python scrapper/getsongs.py
