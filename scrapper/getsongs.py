@@ -75,7 +75,7 @@ def downloadLyrics(rapper):
         r = requests.get("https://api.genius.com" + music['result']['api_path'], headers=headers)
         y = json.loads(r.text)
         # Get lyrics
-        lyrics = scrapSong(y['response']['song']['url'])
+        lyrics = scrapeSong(y['response']['song']['url'])
         topSongs[rapperName]['songs'].append({
             'song': title,
             'lyrics': lyrics
@@ -106,7 +106,7 @@ def getTrendyRappers(Playlists):
     for playlist in Playlists:
         # Limiting 100 artists per request (Spotify limitations)
         if int(artists_limit) > 100:
-            limit = 99
+            limit = 100
         else:
             limit = int(artists_limit)
         r = request_spotify("/playlists/" + playlist + "/tracks?market=FR&limit=" + str(limit))
@@ -139,7 +139,7 @@ def getTrendyRappers(Playlists):
 
 
 # Get lyrics from Genius
-def scrapSong(url):
+def scrapeSong(url):
     page = requests.get(url)
     html = BeautifulSoup(page.text, 'html.parser')
     lyrics = html.find('div', class_='lyrics').get_text()
