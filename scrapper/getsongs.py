@@ -64,6 +64,7 @@ def downloadLyrics(rapper):
     # Append lyrics to file
     writeJson(topSongs)
 
+
 # Get playlist name for given playlist ID
 def getPlaylistName(playlistId):
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json',
@@ -113,6 +114,8 @@ def getTrendyRappers(Playlists):
         print("- " + getPlaylistName(playlist))
         songs = y['items']
         for song in songs:
+            if song["track"] is None:
+                continue
             artist = song['track']['artists'][0]['name']
             artistId = song['track']['artists'][0]['id']
             infos = getArtistInfos(artistId)
@@ -121,11 +124,14 @@ def getTrendyRappers(Playlists):
             else:
                 if len(artistsList) < int(artists_limit):
                     if not any(d['name'] == artist for d in artistsList):
-                        artistsList.append({
-                            "name": artist,
-                            "popularity": infos["popularity"],
-                            "image": infos["images"][0]["url"]
-                        })
+                        print(infos)
+                        if "image" and "popularity" in infos:
+                            if len(infos["images"]) > 0:
+                                artistsList.append({
+                                    "name": artist,
+                                    "popularity": infos["popularity"],
+                                    "image": infos["images"][0]["url"] or None
+                                })
                 else:
                     print("\n! Limit reached !\n")
                     return -1
