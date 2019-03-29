@@ -42,6 +42,7 @@ def request_spotify(path):
             time.sleep(int(r.headers['Retry-After']))
             return request_spotify(path)
     elif r.status_code != 200:
+        print(r.text)
         raise Exception("non 200 return from spotify")
 
     return r
@@ -154,12 +155,12 @@ def writeJson(jsonText):
 
 
 def main():
-    i = 0
-    while True:
-        r = getArtistInfos("0TnOYISbd1XYRBk9myaseg")
-        print("hit #", i, r)
-        i += 1
-    return
+    # i = 0
+    # while True:
+    #     r = getPlaylistName("37i9dQZF1DX1X23oiQRTB5")
+    #     print("hit #", i, r)
+    #     i += 1
+    # return
     global current_timestamp, playlists
     # Get rappers list
     getTrendyRappers(playlists)
