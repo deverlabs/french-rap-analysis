@@ -146,8 +146,11 @@ def getTrendyRappers(Playlists):
 def scrapeSong(url):
     page = requests.get(url)
     html = BeautifulSoup(page.text, 'html.parser')
-    lyrics = html.find('div', class_='lyrics').get_text()
-    return lyrics
+    try:
+        lyrics = html.find('div', class_='lyrics').get_text()
+        return lyrics
+    except:
+        return ""
 
 
 # Write songs in file
