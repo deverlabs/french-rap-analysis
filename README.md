@@ -1,7 +1,7 @@
 # 🎤 Le rap dans tous ses états 🎧
 Projet de Big Data M1 Efrei Paris 2019
 
-#### 🎶 Structure du projet
+#### 🎵 Structure du projet
 
 - **analysis**: Notebook Jupyter
 - **scrapper**: Récupération des datas
